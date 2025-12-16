@@ -12,9 +12,7 @@ export default function Home() {
   const { address, isConnected } = useAppKitAccount();
   const [ethersProvider, setEthersProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contractAddress, setContractAddress] = useState(
-    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ''
-  );
+  const [contractAddress, setContractAddress] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {

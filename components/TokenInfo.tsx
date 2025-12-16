@@ -22,9 +22,7 @@ export default function TokenInfo({
   const [totalSupply, setTotalSupply] = useState<string>('');
   const [userBalance, setUserBalance] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [contractAddress, setContractAddress] = useState(
-    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ''
-  );
+  const [contractAddress, setContractAddress] = useState('');
 
   const loadTokenInfo = async () => {
     if (!provider || !contractAddress) return;
