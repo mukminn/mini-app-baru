@@ -1,73 +1,35 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import { ethers } from 'ethers';
+import WalletButton from '@/components/WalletButton';
+import TokenInfo from '@/components/TokenInfo';
+import TokenActions from '@/components/TokenActions';
 import { useAppKitAccount } from '@reown/appkit/react';
-
-// Dynamic imports for better code splitting and mobile performance
-const WalletButton = dynamic(() => import('@/components/WalletButton'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-48 h-12 bg-gray-700 rounded-lg animate-pulse" />
-  ),
-});
-
-const TokenInfo = dynamic(() => import('@/components/TokenInfo'), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-gray-800 rounded-lg p-6 animate-pulse">
-      <div className="h-6 bg-gray-700 rounded w-1/2 mb-4" />
-      <div className="h-4 bg-gray-700 rounded w-full mb-2" />
-      <div className="h-4 bg-gray-700 rounded w-3/4" />
-    </div>
-  ),
-});
-
-const TokenActions = dynamic(() => import('@/components/TokenActions'), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-gray-800 rounded-lg p-6 animate-pulse">
-      <div className="h-6 bg-gray-700 rounded w-1/2 mb-4" />
-      <div className="h-10 bg-gray-700 rounded w-full mb-4" />
-      <div className="h-10 bg-gray-700 rounded w-full" />
-    </div>
-  ),
-});
-
-// Lazy load ethers only when needed
-let ethers: typeof import('ethers') | null = null;
-const getEthers = async () => {
-  if (!ethers) {
-    ethers = await import('ethers');
-  }
-  return ethers;
-};
+import { base, baseSepolia } from '@reown/appkit/networks';
 
 export default function Home() {
   const { address, isConnected } = useAppKitAccount();
-  const [ethersProvider, setEthersProvider] = useState<any>(null);
-  const [signer, setSigner] = useState<any>(null);
-  const [contractAddress] = useState('');
+  const [ethersProvider, setEthersProvider] = useState<ethers.BrowserProvider | null>(null);
+  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [contractAddress, setContractAddress] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (isConnected && address && typeof window !== 'undefined' && window.ethereum) {
-      // Lazy load ethers only when wallet is connected
-      getEthers().then((ethersModule) => {
-        try {
-          const ethersProv = new ethersModule.BrowserProvider(window.ethereum as any);
-          ethersProv.getSigner().then((sig: any) => {
-            setEthersProvider(ethersProv);
-            setSigner(sig);
-          }).catch(() => {
-            setEthersProvider(null);
-            setSigner(null);
-          });
-        } catch {
+      try {
+        const ethersProv = new ethers.BrowserProvider(window.ethereum as any);
+        ethersProv.getSigner().then((sig) => {
+          setEthersProvider(ethersProv);
+          setSigner(sig);
+        }).catch(() => {
           setEthersProvider(null);
           setSigner(null);
-        }
-      });
+        });
+      } catch {
+        setEthersProvider(null);
+        setSigner(null);
+      }
     } else {
       setEthersProvider(null);
       setSigner(null);
